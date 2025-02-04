@@ -15,7 +15,7 @@ def expected_distance(n, d):
     distances = [nearest_neigbor_distance(X_train, np.random.randn(d)/np.sqrt(d)) for _ in range(100)]
     return np.mean(distances)
 
-d_values = [2,4,6,8,10, 100]
+d_values = [2,4,6,8,10]
 n_values = [100,200,500,1000,2000,5000]
 
 expected_distances = np.zeros((len(d_values), len(n_values)))
@@ -36,6 +36,7 @@ plt.title("Expected Nearest Neighbor Distance vs. n for different d")
 plt.legend()
 plt.grid(True)
 plt.show()    
+
 
 
 
