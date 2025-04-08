@@ -2,9 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from torchvision import datasets, transforms
 
-mnist_train = datasets.MNIST(root='./data', train=True, download=True, transform=transforms.ToTensor())
-mnist_test = datasets.MNIST(root='./data', train=False, download=True, transform=transforms.ToTensor())
-
 def format_data(data):
     flattened_mnist = data.astype(np.float32).reshape(-1, 784) # 784 x 1 vector
     mean = np.mean(flattened_mnist, axis=0)
@@ -51,12 +48,12 @@ def compute_gradient(x, y, W, V, loss_type='quadratic'):
 
 # task a: binary classification
 def train(x_train, y_train, x_test, y_test, h, loss_type='quadratic', 
-    learning_rate = 0.01, batch_size = 16, epochs = 8, report_freq = 100):
+    learning_rate = 0.001, batch_size = 16, epochs = 8, report_freq = 100):
     
     d = x_train.shape[1]
     W, V = init_matrix(h, d, 1)
-    train_accuracy = []
-    test_accuracy = []
+    train_accuracy_list = []
+    test_accuracy_list = []
     inters = []
 
     n_iter = int((x_train.shape[0] / batch_size) * epochs)
@@ -78,16 +75,16 @@ def train(x_train, y_train, x_test, y_test, h, loss_type='quadratic',
         V -= learning_rate * dV
 
         if iter % report_freq == 0 or n_iter == -1 :
-            train_accuracy = eval_acc(x_train, y_train_bin, W, V)
-            test_accuracy = eval_acc(x_test, y_test_bin, W, V)
+            train_acc = eval_acc(x_train, y_train_bin, W, V)
+            test_acc = eval_acc(x_test, y_test_bin, W, V)
     
-            train_accuracy.append(train_acc)
-            test_accuracy.append(test_acc)
+            train_accuracy_list.append(train_acc)
+            test_accuracy_list.append(test_acc)
             inters.append(iter)
 
-            print(f"Iteration {iter}: Train Accuracy: = {train_accuracy:.4f}, Test Accuracy: {test_accuracy:.4f}")
+            print(f"Iteration {iter}: Train Accuracy: = {train_acc:.4f}, Test Accuracy: {test_acc:.4f}")
 
-    return W, V, train_accuracy, test_accuracy, inters
+    return W, V, train_accuracy_list, test_accuracy_list, inters
 
 
 def eval_acc(x, y, W, V):
@@ -105,7 +102,6 @@ def eval_acc(x, y, W, V):
 
 def plot_acc(train_acc, test_acc, inters, h):
     #plot train/test acc
-
     plt.figure(figsize=(10, 6))
     plt.plot(inters, train_acc, 'b-', label='Training Accuracy')
     plt.plot(inters, test_acc, 'r-', label='Test Accuracy')
@@ -116,14 +112,22 @@ def plot_acc(train_acc, test_acc, inters, h):
     plt.grid(True)
     plt.show()
 
+mnist_train = datasets.MNIST(root='./data', train=True, download=True, transform=transforms.ToTensor())
+mnist_test = datasets.MNIST(root='./data', train=False, download=True, transform=transforms.ToTensor())
+
 x_train = format_data(mnist_train.data.numpy())
 y_train = mnist_train.targets.numpy()
 x_test = format_data(mnist_test.data.numpy())
 y_test = mnist_test.targets.numpy()
 
+
+print(f"Training using quadratic loss function")
 for h in [5, 40, 200]:
     print(f"Training with hidden layer size: {h}")
     W, V, train_acc, test_acc, inters = train(x_train,y_train,x_test,y_test,h=h,report_freq=100)
 
     plot_acc(train_acc, test_acc, inters, h)
     print(f"Final test acc with h = {h}: {test_acc[-1]:.4f}")
+
+
+print(f"Training using logistic loss function")
