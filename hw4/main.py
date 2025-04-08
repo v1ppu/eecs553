@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from torchvision import datasets, transforms
 
 def format_data(data):
-    flattened_mnist = data.astype(np.float32).reshape(-1, 784) # 784 x 1 vector
+    flattened_mnist = data.astype(np.float32).reshape(-1, 784)
     mean = np.mean(flattened_mnist, axis=0)
     std = np.std(flattened_mnist, axis=0)  + 1e-8
 
@@ -17,7 +17,7 @@ def init_matrix(h, d, K):
     V_0 = np.random.randn(K, h) * np.sqrt(2.0 / h)
     return W_0, V_0
 
-def compute_gradient(x, y, W, V, loss_type='quadratic'):
+def compute_gradient(x, y, W, V, loss_type=''):
     # x : input data
     # y : label
     # W ; weight matrix for hidden layer (h x d)
@@ -47,7 +47,7 @@ def compute_gradient(x, y, W, V, loss_type='quadratic'):
 
 
 # task a: binary classification
-def train(x_train, y_train, x_test, y_test, h, loss_type='quadratic', 
+def train(x_train, y_train, x_test, y_test, h, loss_type='', 
     learning_rate = 0.001, batch_size = 16, epochs = 8, report_freq = 100):
     
     d = x_train.shape[1]
@@ -124,10 +124,16 @@ y_test = mnist_test.targets.numpy()
 print(f"Training using quadratic loss function")
 for h in [5, 40, 200]:
     print(f"Training with hidden layer size: {h}")
-    W, V, train_acc, test_acc, inters = train(x_train,y_train,x_test,y_test,h=h,report_freq=100)
+    W, V, train_acc, test_acc, inters = train(x_train,y_train,x_test,y_test,h=h,loss_type='quadratic',report_freq=100)
 
     plot_acc(train_acc, test_acc, inters, h)
     print(f"Final test acc with h = {h}: {test_acc[-1]:.4f}")
 
 
 print(f"Training using logistic loss function")
+for h in [5, 40, 200]:
+    print(f"Training with hidden layer size: {h}")
+    W, V, train_acc, test_acc, inters = train(x_train,y_train,x_test,y_test,h=h,loss_type='logistic',report_freq=100)
+
+    plot_acc(train_acc, test_acc, inters, h)
+    print(f"Final test acc with h = {h}: {test_acc[-1]:.4f}")
